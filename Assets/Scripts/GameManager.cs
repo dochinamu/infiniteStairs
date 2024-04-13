@@ -1,28 +1,29 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public bool Game_Start = false; // °ÔÀÓ ½ÃÀÛ Ã¼Å©
+    public bool Game_Start = false; // ê²Œì„ ì‹œì‘ ì²´í¬
 
-    public float Current_Time = 0.0f; // ÇöÀç ³²Àº ½Ã°£
-    public float Destination_Time = 10.0f; // ÀüÃ¼ ½Ã°£(10ÃÊ)
-    public Slider Slider; // ½Ã°£ Å¸ÀÌ¸Ó
-    public float Add_Time_Flow = 0.001f; // °¨¼Ò ½Ã°£
+    public float Current_Time = 0.0f; // í˜„ì¬ ë‚¨ì€ ì‹œê°„
+    public float Destination_Time = 10.0f; // ì „ì²´ ì‹œê°„(10ì´ˆ)
+    public Slider Slider; // ì‹œê°„ íƒ€ì´ë¨¸
+    public float Add_Time_Flow = 0.001f; // ê°ì†Œ ì‹œê°„
 
-    public Text Text; // Á¡¼ö ÅØ½ºÆ®
+    public Text Text; // ì ìˆ˜ í…ìŠ¤íŠ¸
 
-    public int Score = 0; // Á¡¼ö
+    public int Score = 0; // ì ìˆ˜
+
+    public Text GameOverText;
 
 
-
-    public GameObject Character; // Ä³¸¯ÅÍ
-    public Transform Platform_Parents; // Á¤¸®¸¦ À§ÇÑ ¹ßÆÇµéÀÇ ºÎ¸ğ ¿ÀºêÁ§Æ®
-    public GameObject Platform; // °è´Ü
-    private List<GameObject> Platform_List = new List<GameObject>(); // ¹ßÆÇ ¸®½ºÆ®
-    private List<int> Platform_Check_List = new List<int>(); // ¹ßÆÇÀÇ À§Ä¡ ¸®½ºÆ® (¿ŞÂÊ: 0, ¿À¸¥ÂÊ: 1)
+    public GameObject Character; // ìºë¦­í„°
+    public Transform Platform_Parents; // ì •ë¦¬ë¥¼ ìœ„í•œ ë°œíŒë“¤ì˜ ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸
+    public GameObject Platform; // ê³„ë‹¨
+    private List<GameObject> Platform_List = new List<GameObject>(); // ë°œíŒ ë¦¬ìŠ¤íŠ¸
+    private List<int> Platform_Check_List = new List<int>(); // ë°œíŒì˜ ìœ„ì¹˜ ë¦¬ìŠ¤íŠ¸ (ì™¼ìª½: 0, ì˜¤ë¥¸ìª½: 1)
 
     // Start is called before the first frame update
     void Start()
@@ -35,21 +36,24 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
-        if (Game_Start) { // Å°º¸µå ÀÔ·Â Ã¼Å©
+        if (Game_Start) { // í‚¤ë³´ë“œ ì…ë ¥ ì²´í¬
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
+                Character.transform.rotation = Quaternion.Euler(0, -180, 180); // ìºë¦­í„° ìš°ë¡œ êµ´ëŸ¬
                 Check_Platform(Character_Pos_Idx, 1);
             } else if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
+                Character.transform.rotation = Quaternion.Euler(0, 0, 180); // ìºë¦­í„° ì¢Œë¡œ êµ´ëŸ¬
                 Check_Platform(Character_Pos_Idx, 0);
             }
             Destination_Time = Destination_Time - Add_Time_Flow;
-            Current_Time = Current_Time - Time.deltaTime; // ÇÁ·¹ÀÓ »çÀÌ ½Ã°£ÀÌ ÀÏÁ¤ÇÏÁö ¾Ê±â ¶§¹®¿¡, delta time¾¿ ´õÇØÁÖ¾î ¾î¶² È¯°æ¿¡¼­µç ÀÏÁ¤ÇÑ ½Ã°£¾¿ Èå¸£µµ·Ï ÇÔ
+            Current_Time = Current_Time - Time.deltaTime; // í”„ë ˆì„ ì‚¬ì´ ì‹œê°„ì´ ì¼ì •í•˜ì§€ ì•Šê¸° ë•Œë¬¸ì—, delta timeì”© ë”í•´ì£¼ì–´ ì–´ë–¤ í™˜ê²½ì—ì„œë“  ì¼ì •í•œ ì‹œê°„ì”© íë¥´ë„ë¡ í•¨
 
             Slider.value = Current_Time / Destination_Time;
             
             if (Current_Time < 0f)
             {
+                GameOverText.text = "Time out!";
                 Result();
             }
         } else
@@ -61,11 +65,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void Data_Load() // µ¥ÀÌÅÍ ·Îµå, ¹ßÆÇ ¿ÀºêÁ§Æ® »ı¼º
+    public void Data_Load() // ë°ì´í„° ë¡œë“œ, ë°œíŒ ì˜¤ë¸Œì íŠ¸ ìƒì„±
     {
         for(int i=0; i < 20; i++)
         {
-            GameObject t_obj = Instantiate(Platform, Vector3.zero, Quaternion.identity); //º¹»çÇÒ ¿ÀºêÁ§Æ®, º¹Á¦µÈ ¿ÀºêÁ§Æ®ÀÇ À§Ä¡, º¹Á¦µÈ ÇÁ·ÎÁ§Æ®ÀÇ ¹æÇâ(ºÎ¸ğ ÁÂÇ¥Ãà)
+            GameObject t_obj = Instantiate(Platform, Vector3.zero, Quaternion.identity); //ë³µì‚¬í•  ì˜¤ë¸Œì íŠ¸, ë³µì œëœ ì˜¤ë¸Œì íŠ¸ì˜ ìœ„ì¹˜, ë³µì œëœ í”„ë¡œì íŠ¸ì˜ ë°©í–¥(ë¶€ëª¨ ì¢Œí‘œì¶•)
             t_obj.transform.parent = Platform_Parents;
             Platform_List.Add(t_obj);
             Platform_Check_List.Add(0);
@@ -75,12 +79,13 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private int Pos_Idx = 0; // ¹ßÆÇÀÇ ¸¶Áö¸· À§Ä¡
-    private int Character_Pos_Idx = 0; // Ä³¸¯ÅÍ À§Ä¡
+    private int Pos_Idx = 0; // ë°œíŒì˜ ë§ˆì§€ë§‰ ìœ„ì¹˜
+    private int Character_Pos_Idx = 0; // ìºë¦­í„° ìœ„ì¹˜
 
 
-    public void Init() // Ä³¸¯ÅÍ À§Ä¡, ¹ßÆÇ À§Ä¡ ÃÊ±âÈ­
+    public void Init() // ìºë¦­í„° ìœ„ì¹˜, ë°œíŒ ìœ„ì¹˜ ì´ˆê¸°í™”
     {
+        GameOverText.enabled = false;
         Character.transform.position = Vector3.zero; 
 
         for (Pos_Idx = 0; Pos_Idx < 20;)
@@ -103,26 +108,26 @@ public class GameManager : MonoBehaviour
     public void Next_Platform(int idx)
     {
         int pos = Random.Range(0, 2); //0 or 1
-        if (idx == 0) // Ã¹¹øÂ° ¹ßÆÇÀÌ¶ó¸é
+        if (idx == 0) // ì²«ë²ˆì§¸ ë°œíŒì´ë¼ë©´
         {
             Platform_List[idx].transform.position = new Vector3(0, -0.5f, 0);
         }else
         {
             if (Pos_Idx < 20)
             {
-                if (pos == 0) // ¿ŞÂÊ ¹ßÆÇÀÌ¶ó¸é
+                if (pos == 0) // ì™¼ìª½ ë°œíŒì´ë¼ë©´
                 {
                     Platform_Check_List[idx - 1] = pos;
                     Platform_List[idx].transform.position = Platform_List[idx - 1].transform.position + new Vector3(-1f, 0.5f, 0);
                 }
-                else // ¿À¸¥ÂÊ ¹ßÆÇÀÌ¶ó¸é
+                else // ì˜¤ë¥¸ìª½ ë°œíŒì´ë¼ë©´
                 {
                     Platform_Check_List[idx - 1] = pos;
                     Platform_List[idx].transform.position = Platform_List[idx - 1].transform.position + new Vector3(1f, 0.5f, 0);
                 }
             } else
             {
-                if (pos == 0) // ¿ŞÂÊ ¹ßÆÇÀÌ¶ó¸é
+                if (pos == 0) // ì™¼ìª½ ë°œíŒì´ë¼ë©´
                 {
                     if (idx % 20 == 0)
                     {
@@ -134,7 +139,7 @@ public class GameManager : MonoBehaviour
                         Platform_List[idx % 20].transform.position = Platform_List[idx % 20 - 1].transform.position + new Vector3(-1f, 0.5f, 0);
                     }
                 }
-                else // ¿À¸¥ÂÊ ¹ßÆÇÀÌ¶ó¸é
+                else // ì˜¤ë¥¸ìª½ ë°œíŒì´ë¼ë©´
                 {
                     if (idx % 20 == 0)
                     {
@@ -158,20 +163,27 @@ public class GameManager : MonoBehaviour
     void Check_Platform(int idx, int direction)
     {
         Debug.Log("idx: " + idx % 20 + " /Platform: " + Platform_Check_List[idx % 20] + " /Direction: " + direction);
-        if (Platform_Check_List[idx % 20] == direction) // ¹ßÆÇÀÌ ÀÖÀ½
+        if (Platform_Check_List[idx % 20] == direction) // ë°œíŒì´ ìˆìŒ
         {
             Character_Pos_Idx++;
-            Character.transform.position = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0f, 0.5f, 0); // ¹ßÆÇ À§¿¡ ¿Ã¶ó°¡µµ·Ï Ä³¸¯ÅÍ À§Ä¡ ÀÌµ¿
+            Character.transform.position = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0f, 0.5f, 0); // ë°œíŒ ìœ„ì— ì˜¬ë¼ê°€ë„ë¡ ìºë¦­í„° ìœ„ì¹˜ ì´ë™
             Next_Platform(Pos_Idx);
         } else
         {
+            ShowEndSentence();
             Result();
         }
     }
 
     public void Result()
     {
+        ShowEndSentence();
         Debug.Log("Game Over");
         Game_Start = false;
+    }
+
+    public void ShowEndSentence()
+    {
+        GameOverText.enabled = true;
     }
 }
