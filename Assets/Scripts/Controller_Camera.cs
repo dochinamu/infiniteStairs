@@ -9,7 +9,7 @@ public class Controller_Camera : MonoBehaviour
 
     void Start()
     {
-
+        
     }
 
     void Update()

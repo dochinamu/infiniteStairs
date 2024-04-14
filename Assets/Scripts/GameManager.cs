@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class GameManager : MonoBehaviour
 {
@@ -25,6 +26,13 @@ public class GameManager : MonoBehaviour
     private List<GameObject> Platform_List = new List<GameObject>(); // 발판 리스트
     private List<int> Platform_Check_List = new List<int>(); // 발판의 위치 리스트 (왼쪽: 0, 오른쪽: 1)
 
+
+    private Vector3 startPos, endPos;
+    //땅에 닫기까지 걸리는 시간
+    protected float timer;
+    protected float timeToFloor;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,11 +47,11 @@ public class GameManager : MonoBehaviour
         if (Game_Start) { // 키보드 입력 체크
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
-                Character.transform.rotation = Quaternion.Euler(0, -180, 180); // 캐릭터 우로 굴러
+                Character.transform.rotation = Quaternion.Euler(0, -180, 0); // 캐릭터 우로 굴러
                 Check_Platform(Character_Pos_Idx, 1);
             } else if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                Character.transform.rotation = Quaternion.Euler(0, 0, 180); // 캐릭터 좌로 굴러
+                Character.transform.rotation = Quaternion.Euler(0, 0, 0); // 캐릭터 좌로 굴러
                 Check_Platform(Character_Pos_Idx, 0);
             }
             Destination_Time = Destination_Time - Add_Time_Flow;
@@ -166,7 +174,8 @@ public class GameManager : MonoBehaviour
         if (Platform_Check_List[idx % 20] == direction) // 발판이 있음
         {
             Character_Pos_Idx++;
-            Character.transform.position = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0f, 0.5f, 0); // 발판 위에 올라가도록 캐릭터 위치 이동
+            //Character.transform.position = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0f, 0.5f, 0); // 발판 위에 올라가도록 캐릭터 위치 이동
+            Move(Character_Pos_Idx);
             Next_Platform(Pos_Idx);
         } else
         {
@@ -174,6 +183,24 @@ public class GameManager : MonoBehaviour
             Result();
         }
     }
+
+
+
+    void Move(int Character_Pos_Idx)
+    {
+        Vector3 firstPos = Character.transform.position;
+        Vector3 secondPos = (firstPos + Platform_List[Character_Pos_Idx % 20].transform.position)/2f + new Vector3(0, 2f, 0);
+        Vector3 thirdPos = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0, 0.5f, 0);
+
+        // 후보1: 에스컬레이터 무빙
+        Character.transform.DOJump(thirdPos, 0.3f, 1, 0.1f);
+
+
+        //후보 2: 포물선이 꺾이고 꺾이는 롤러코스터 경로
+        //Character.transform.DOPath(new[] { secondPos, firstPos + Vector3.up, secondPos + Vector3.left * 2, thirdPos, secondPos + Vector3.right * 2, thirdPos + Vector3.up }, 1f, PathType.CubicBezier).SetEase(Ease.Unset);
+    }
+
+
 
     public void Result()
     {
