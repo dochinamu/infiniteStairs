@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public float Current_Time = 0.0f; // 현재 남은 시간
     public float Destination_Time = 10.0f; // 전체 시간(10초)
     public Slider Slider; // 시간 타이머
-    public float Add_Time_Flow = 0.001f; // 감소 시간
+    public float Add_Time_Flow = 0.0005f; // 감소 시간
 
     public Text Text; // 점수 텍스트
 
@@ -27,7 +27,6 @@ public class GameManager : MonoBehaviour
     private List<int> Platform_Check_List = new List<int>(); // 발판의 위치 리스트 (왼쪽: 0, 오른쪽: 1)
 
 
-    private Vector3 startPos, endPos;
     //땅에 닫기까지 걸리는 시간
     protected float timer;
     protected float timeToFloor;
@@ -192,12 +191,22 @@ public class GameManager : MonoBehaviour
         Vector3 secondPos = (firstPos + Platform_List[Character_Pos_Idx % 20].transform.position)/2f + new Vector3(0, 2f, 0);
         Vector3 thirdPos = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0, 0.5f, 0);
 
-        // 후보1: 에스컬레이터 무빙
+        // 후보1: 점프 무빙
         Character.transform.DOJump(thirdPos, 0.3f, 1, 0.1f);
-
-
+        // 성공적으로 움직였을 시, 0.001f초 보너스 시간 부여
+        if (Destination_Time - Current_Time > Time.deltaTime*30)
+        {
+            Current_Time = Current_Time + Time.deltaTime*30;
+        }
+        else
+        {
+            Current_Time = Destination_Time;
+        }
         //후보 2: 포물선이 꺾이고 꺾이는 롤러코스터 경로
         //Character.transform.DOPath(new[] { secondPos, firstPos + Vector3.up, secondPos + Vector3.left * 2, thirdPos, secondPos + Vector3.right * 2, thirdPos + Vector3.up }, 1f, PathType.CubicBezier).SetEase(Ease.Unset);
+
+
+
     }
 
 
