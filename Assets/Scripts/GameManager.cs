@@ -191,8 +191,9 @@ public class GameManager : MonoBehaviour
         Vector3 secondPos = (firstPos + Platform_List[Character_Pos_Idx % 20].transform.position)/2f + new Vector3(0, 2f, 0);
         Vector3 thirdPos = Platform_List[Character_Pos_Idx % 20].transform.position + new Vector3(0, 0.5f, 0);
 
-        // 후보1: 점프 무빙
+        // 후보1: 점프 무빙 DOPath
         Character.transform.DOJump(thirdPos, 0.3f, 1, 0.1f);
+
         // 성공적으로 움직였을 시, 0.001f초 보너스 시간 부여
         if (Destination_Time - Current_Time > Time.deltaTime*30)
         {
